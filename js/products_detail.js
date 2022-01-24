@@ -10,7 +10,7 @@ xmlhttp.onreadystatechange = function() {
 
 xmlhttp.open("GET", url, true); //ra lệnh
 xmlhttp.send(); //thực hiên
-let cartItemID = 1;
+// let cartItemID = 1;
 
 function render_products_gallery(arr) {
     var div = '<div class="products_main"><div class="products_content"><div class="products_gallery" id="products_gallery">';
@@ -120,7 +120,7 @@ onLoadCartNumbers();
 displayCart();
 // displayFavorite();
 function thongBaoFavorite(){
-    alert("Đã thêm sản phẩm yêu thích ♥️");
+    // alert("Đã thêm sản phẩm yêu thích ♥️");
 }
 function savefavorite(product){
     let productFavorite = {
@@ -128,7 +128,52 @@ function savefavorite(product){
         image: product.image[0],
         name: product.name,
     }
-    saveFavoriteInStorage(productFavorite);
+    // localStorage.getItem("favoriteProducts") != null
+    if(!JSON.parse(localStorage.getItem("favoriteProducts"))){
+        saveFavoriteInStorage(productFavorite);
+        alert("Đã thêm sản phẩm yêu thích ♥️");
+    }
+    else{
+        
+        // for (var i=0;i<JSON.parse(localStorage.getItem("favoriteProducts")).length;i++){
+        //     if(product.productid==JSON.parse(localStorage.getItem("favoriteProducts"))[i].productid){
+        //         alert("Bạn đã thêm trước đó rồi!");
+        //         break;
+        //     }
+        //     else{
+        //         saveFavoriteInStorage(productFavorite);
+        //         alert("Đã thêm sản phẩm yêu thích ♥️");
+        //         break;
+        //     }
+        // }
+        var exist = false;
+        for (var i = 0; i < JSON.parse(localStorage.getItem("favoriteProducts")).length; i++) {
+            //if the product name of the item clicked in already in the array 
+            //then no need to add but get the quantity and increment it by 1
+            if (JSON.parse(localStorage.getItem("favoriteProducts"))[i].productid === product.productid) {
+                // list[i].quantity++;
+                // console.log('same product not adding, we are incrementing the quantity by 1 ');
+                // console.log(list);
+                alert("Bạn đã thêm trước đó rồi!");
+                exist = true;
+            }
+        }
+
+        if(!exist){
+            // IF  EXIST is still false, the item is definately nowhere inside the array
+
+            // if the name of product clicked  does not exist then add it to the list
+            // here is where there problem comes, when there is only one product in the list 
+            // everything works fine, but when there are two different kinds of products in the list 
+            //  as shown in a console log below, then you click on
+            // one of these items it increment the quantity then add the same item again
+            // list.push({ name: productName, price: productPrice, url: url, quantity: 1 });
+            // console.log('does not exist, am adding now')
+            // console.log(list)
+            saveFavoriteInStorage(productFavorite);
+            alert("Đã thêm sản phẩm yêu thích ♥️");
+        }
+    }
 }
 function getFavoriteFromStorage(){
     return localStorage.getItem('favoriteProducts') ? JSON.parse(localStorage.getItem('favoriteProducts')) : [];
@@ -183,10 +228,10 @@ function onLoadCartNumbers() {
         document.querySelector('.countProductsInCart1 span').textContent = productNumbers;
         document.querySelector('.countProductsInCart2 span').textContent = productNumbers;
         document.querySelector('.countProductsInCart3 span').textContent = productNumbers;
-        cartItemID = productsInTheCart[productsInTheCart.length - 1].thutusanpham;
-        cartItemID++;
+        // cartItemID = productsInTheCart[productsInTheCart.length - 1].thutusanpham;
+        // cartItemID++;
     } else {
-        cartItemID = 1;
+        // cartItemID = 1;
     }
 }
 // quantity:parseInt(document.getElementById('soluongsanpham').value)
@@ -238,122 +283,83 @@ function setItems(product){
         // image: product.image[0],
         name: product.name,
         thuocTinh:"",
-        thutusanpham:cartItemID,
+        // thutusanpham:cartItemID,
         // price: product.price[0],
         quantity:parseInt(document.getElementById('soluongsanpham').value) // id 'soluongsanpham' là id của input số lượng ở <fieldset>
     }
-    cartItemID++;
-    if (product.weight != "") {
-        // productInfo["weight"] = product.weight ;
-        var khoiLuong = document.getElementsByName('weight');
+    // cartItemID++;
+    if(product.weight!=""){
+        
+        if(product.colors!=""){
+            var khoiLuong = document.getElementsByName('weight');
               
             for(i = 0; i < khoiLuong.length; i++) {
                 if(khoiLuong[i].checked){
                     productInfo["weight"] = product.weight[i];
-                    productInfo["thuocTinh"] = product.weight[i];
-                    // productInfo["name"] = product.name+" ("+product.weight[i]+")";
+                }
+            }
+            var mauSac = document.getElementsByName('color');
+              
+            for(i = 0; i < mauSac.length; i++) {
+                if(mauSac[i].checked){
+                    if (product.image.length<mauSac.length){
+                        productInfo["image"] = product.image[0];
+                    }
+                    else if (product.image.length>mauSac.length){
+                        productInfo["image"] = product.image[i+1];
+                    }
+                    else{
+                        productInfo["image"] = product.image[i];
+                    }
+                    productInfo["colors"] = product.colors[i];
+                    // productInfo["thuocTinh"] = productInfo["weight"]+" & "+productInfo["colors"];
+                    if(product.discount==""){
+                        productInfo["price"] = product.price[0];
+                    }
+                    else{
+                        productInfo["price"] = product.discount;
+                    }
+                }
+            }
+            
+        }
+
+
+        else{
+            var khoiLuong = document.getElementsByName('weight');
+              
+            for(i = 0; i < khoiLuong.length; i++) {
+                if(khoiLuong[i].checked){
+                    productInfo["weight"] = product.weight[i];
+                    // productInfo["thuocTinh"] = productInfo["weight"];
                     if(product.discount==""){
                         productInfo["price"] = product.price[i];
                     }
                     else{
-                        productInfo["price"] =product.discount;
+                        productInfo["price"] = product.discount;
                     }
                 }
-                
             }
-        productInfo["image"] = product.image[0];
+            productInfo["image"] = product.image[0];
+        }
     }
-    else if (product.colors != "") {
-        // productInfo["colors"] = product.colors ;
+    else if(product.colors!=""){
         var mauSac = document.getElementsByName('color');
               
             for(i = 0; i < mauSac.length; i++) {
                 if(mauSac[i].checked){
-                    productInfo["image"] = product.image[i];
+                    if (product.image.length<mauSac.length){
+                        productInfo["image"] = product.image[0];
+                    }
+                    else if (product.image.length>mauSac.length){
+                        productInfo["image"] = product.image[i+1];
+                    }
+                    else{
+                        productInfo["image"] = product.image[i];
+                    }
                     productInfo["colors"] = product.colors[i];
 
-                    switch (productInfo["colors"]) {
-                        case "red":
-                            productInfo["thuocTinh"] = "đỏ";
-                            break;
-                        case "grey":
-                            productInfo["thuocTinh"] = "xám";
-                            break;
-                        case "gray":
-                            productInfo["thuocTinh"] = "xám";
-                            break;
-                        case "black":
-                            productInfo["thuocTinh"] = "đen";
-                            break;
-                        case "brown":
-                            productInfo["thuocTinh"] = "nâu";
-                            break;
-                        case "white":
-                            productInfo["thuocTinh"] = "trắng";
-                            break;
-                        case "beige":
-                            productInfo["thuocTinh"] = "màu be";
-                            break;
-                        case "lightblue":
-                            productInfo["thuocTinh"] = "xanh dương nhạt";
-                            break;
-                        case "wheat":
-                            productInfo["thuocTinh"] = "lúa mì";
-                            break;
-                        case "chartreuse":
-                            productInfo["thuocTinh"] = "xanh nõn chuối";
-                            break;
-                        case "cyan":
-                            productInfo["thuocTinh"] = "xanh lơ";
-                            break;
-                        case "blue":
-                            productInfo["thuocTinh"] = "xanh dương";
-                            break;
-                        case "green":
-                            productInfo["thuocTinh"] = "xanh lá";
-                            break;
-                        case "yellow":
-                            productInfo["thuocTinh"] = "vàng";
-                            break;
-                        case "orange":
-                            productInfo["thuocTinh"] = "cam";
-                            break;
-                        case "pink":
-                            productInfo["thuocTinh"] = "hồng";
-                            break;
-                        case "purple":
-                            productInfo["thuocTinh"] = "tím";
-                            break;
-                        case "silver":
-                            productInfo["thuocTinh"] = "bạc";
-                            break;
-                        case "maroon":
-                            productInfo["thuocTinh"] = "hạt dẻ";
-                            break;
-                        case "fuchsia":
-                            productInfo["thuocTinh"] = "hồng vân anh";
-                            break;
-                        case "lime":
-                            productInfo["thuocTinh"] = "vàng chanh";
-                            break;
-                        case "olive":
-                            productInfo["thuocTinh"] = "ô liu";
-                            break;
-                        case "navy":
-                            productInfo["thuocTinh"] = "xanh nước biển";
-                            break;
-                        case "teal":
-                            productInfo["thuocTinh"] = "xanh mòng két";
-                            break;
-
-                        
-                        
-                            
-
-                        case productInfo["colors"]:
-                            productInfo["thuocTinh"] = productInfo["colors"];
-                            break;
-                    }
+                    
 
                     // productInfo["thuocTinh"] = productInfo["colors"];
                     // productInfo["name"] = product.name+" ("+product.colors[i]+")";
@@ -375,12 +381,233 @@ function setItems(product){
             productInfo["price"] = product.discount;
         }
         productInfo["image"] = product.image[0];
-        // productInfo["name"] = product.name;
     }
+    // if (product.weight != "") {
+    //     // productInfo["weight"] = product.weight ;
+    //     var khoiLuong = document.getElementsByName('weight');
+              
+    //         for(i = 0; i < khoiLuong.length; i++) {
+    //             if(khoiLuong[i].checked){
+    //                 productInfo["weight"] = product.weight[i];
+    //                 productInfo["thuocTinh"] = product.weight[i];
+    //                 // productInfo["name"] = product.name+" ("+product.weight[i]+")";
+    //                 if(product.discount==""){
+    //                     productInfo["price"] = product.price[i];
+    //                 }
+    //                 else{
+    //                     productInfo["price"] =product.discount;
+    //                 }
+    //             }
+                
+    //         }
+    //     productInfo["image"] = product.image[0];
+    // }
+    // else if (product.colors != "") {
+    //     // productInfo["colors"] = product.colors ;
+    //     var mauSac = document.getElementsByName('color');
+              
+    //         for(i = 0; i < mauSac.length; i++) {
+    //             if(mauSac[i].checked){
+    //                 if (product.image.length<mauSac.length){
+    //                     productInfo["image"] = product.image[0];
+    //                 }
+    //                 else if (product.image.length>mauSac.length){
+    //                     productInfo["image"] = product.image[i+1];
+    //                 }
+    //                 else{
+    //                     productInfo["image"] = product.image[i];
+    //                 }
+    //                 productInfo["colors"] = product.colors[i];
+
+                    
+
+    //                 // productInfo["thuocTinh"] = productInfo["colors"];
+    //                 // productInfo["name"] = product.name+" ("+product.colors[i]+")";
+    //             }
+                
+    //         }
+    //         if(product.discount==""){
+    //             productInfo["price"] = product.price[0];
+    //         }
+    //         else{
+    //             productInfo["price"] = product.discount;
+    //         }
+    // }
+    // else{
+    //     if(product.discount==""){
+    //         productInfo["price"] = product.price[0];
+    //     }
+    //     else{
+    //         productInfo["price"] = product.discount;
+    //     }
+    //     productInfo["image"] = product.image[0];
+    //     // productInfo["name"] = product.name;
+    // }
     productInfo["pricetotal"] = productInfo["price"]*productInfo["quantity"];
     // addToCartList(productInfo);
-    saveProductInStorage(productInfo);
+    switch (productInfo["colors"]) {
+        case "red":
+            productInfo["colors"] = "đỏ";
+            break;
+        case "grey":
+            productInfo["colors"] = "xám";
+            break;
+        case "gray":
+            productInfo["colors"] = "xám";
+            break;
+        case "black":
+            productInfo["colors"] = "đen";
+            break;
+        case "brown":
+            productInfo["colors"] = "nâu";
+            break;
+        case "white":
+            productInfo["colors"] = "trắng";
+            break;
+        case "beige":
+            productInfo["colors"] = "màu be";
+            break;
+        case "lightblue":
+            productInfo["colors"] = "xanh dương nhạt";
+            break;
+        case "wheat":
+            productInfo["colors"] = "lúa mì";
+            break;
+        case "chartreuse":
+            productInfo["colors"] = "xanh nõn chuối";
+            break;
+        case "cyan":
+            productInfo["colors"] = "xanh lơ";
+            break;
+        case "blue":
+            productInfo["colors"] = "xanh dương";
+            break;
+        case "green":
+            productInfo["colors"] = "xanh lá";
+            break;
+        case "yellow":
+            productInfo["colors"] = "vàng";
+            break;
+        case "orange":
+            productInfo["colors"] = "cam";
+            break;
+        case "pink":
+            productInfo["colors"] = "hồng";
+            break;
+        case "purple":
+            productInfo["colors"] = "tím";
+            break;
+        case "silver":
+            productInfo["colors"] = "bạc";
+            break;
+        case "maroon":
+            productInfo["colors"] = "hạt dẻ";
+            break;
+        case "fuchsia":
+            productInfo["colors"] = "hồng vân anh";
+            break;
+        case "lime":
+            productInfo["colors"] = "vàng chanh";
+            break;
+        case "olive":
+            productInfo["colors"] = "ô liu";
+            break;
+        case "navy":
+            productInfo["colors"] = "xanh nước biển";
+            break;
+        case "teal":
+            productInfo["colors"] = "xanh mòng két";
+            break;
+
+        
+        
+            
+
+        case productInfo["colors"]:
+            productInfo["colors"] = productInfo["colors"];
+            break;
+    }
+    if(productInfo["weight"]){
+        if(productInfo["colors"]){
+            productInfo["thuocTinh"] = productInfo["weight"]+" & "+productInfo["colors"];
+        }
+        else{
+            productInfo["thuocTinh"] = productInfo["weight"];
+        }
+    }
+    else if(productInfo["colors"]){
+        productInfo["thuocTinh"] = productInfo["colors"];
+    }
+    else{
+        productInfo["thuocTinh"] = "";
+    }
+
+    var sanphamtronggiohang=JSON.parse(localStorage.getItem("productsInCart"));
+    if (!sanphamtronggiohang){
+        saveProductInStorage(productInfo);
+    }
+    else{
+        var exist1 = false;
+        for (var i=0;i<sanphamtronggiohang.length;i++){
+            if(sanphamtronggiohang[i].thuocTinh===productInfo["thuocTinh"] && 
+            sanphamtronggiohang[i].productid===productInfo["productid"]){
+                // productInfo["quantity"]++;
+                productInfo["quantity"]+=parseInt(document.getElementById('soluongsanpham').value);
+                // localStorage.setItem("productsInCart", {productid: "1", name: "Thức ăn cho chó con cỡ nhỏ ROYAL CANIN Mini Puppy", thuocTinh: "500g", weight: "500g"});
+                // saveProductInStorage(productInfo);
+                // for (i in sanphamtronggiohang) {
+                //     // example of storageObjet: {'item-3': {'href': 'google.com', 'icon': 'google.png'}}
+                //     var struct={};
+                //     for (key in sanphamtronggiohang[i]) {
+                //         if (key != 'productid') and (key!='thuocTinh') {
+                //             struct[key] = blob[i][key];
+                //         }
+                //     };
+                //     this.setObject(sanphamtronggiohang[i].id, struct);
+                // }
+                exist1 = true;
+                // break;
+            }
+            // else{
+            //     saveFavoriteInStorage(productInfo);
+            //     break;
+            // }
+        }
+        if(!exist1){
+            saveProductInStorage(productInfo);
+        }
+    }
+
+        // for (var i = 0; i < JSON.parse(localStorage.getItem("favoriteProducts")).length; i++) {
+        //     //if the product name of the item clicked in already in the array 
+        //     //then no need to add but get the quantity and increment it by 1
+        //     if (JSON.parse(localStorage.getItem("favoriteProducts"))[i].productid === product.productid) {
+        //         // list[i].quantity++;
+        //         // console.log('same product not adding, we are incrementing the quantity by 1 ');
+        //         // console.log(list);
+        //         alert("Bạn đã thêm trước đó rồi!");
+        //     }
+        // }
+
+        // if(!exist){
+        //     // IF  EXIST is still false, the item is definately nowhere inside the array
+
+        //     // if the name of product clicked  does not exist then add it to the list
+        //     // here is where there problem comes, when there is only one product in the list 
+        //     // everything works fine, but when there are two different kinds of products in the list 
+        //     //  as shown in a console log below, then you click on
+        //     // one of these items it increment the quantity then add the same item again
+        //     // list.push({ name: productName, price: productPrice, url: url, quantity: 1 });
+        //     // console.log('does not exist, am adding now')
+        //     // console.log(list)
+        //     saveFavoriteInStorage(productFavorite);
+        //     alert("Đã thêm sản phẩm yêu thích ♥️");
+        // }
+
+    // saveProductInStorage(productInfo);
+    
 }
+
 function saveProductInStorage(item){
     let products = getProductFromStorage();
     products.push(item);
@@ -482,7 +709,7 @@ function displayFavorite() {
         productContainerx.innerHTML = '';
         // productContainerInPayment.innerHTML = '';
         Object.values(cartItemsx).map(item => {
-            productContainerx.innerHTML += '<div class="favorite-item"><ion-icon name="close-circle-outline"></ion-icon><img src="'+item.image+'" onclick="gotoChiTiet(' + item.productid + ')" onmouseover="" style="cursor: pointer;"><span>'+item.name+'</span></div>';
+            productContainerx.innerHTML += '<div class="favorite-item"><ion-icon name="close-circle-outline"></ion-icon><img src="'+item.image+'" onclick="gotoChiTiet(' + item.productid + ')" onmouseover="" style="cursor: pointer;"><span>'+item.name+'</span></div><div class="catDong"></div>';
         });
         // productContainer.innerHTML += '<div class="basketTotalContainer"><h4 class="basketTotalTitle">TỔNG CỘNG</h4><h4 class="basketTotal">'+formatNumber(cartCost)+'đ</h4></div><a style="margin-left:auto;margin-right:auto;display:block" class="btn_add-to-cart" href="Dog-Product.html">TIẾP TỤC MUA SẮM</a><a style="margin-left:auto;margin-right:auto;display:block" class="btn_add-to-cart" href="payment.html">THANH TOÁN</a>';
 
