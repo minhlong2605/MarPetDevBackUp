@@ -135,7 +135,8 @@
     position: fixed;
     bottom: 170px;
     right: 25px;
-    z-index: 2147483645;
+    /* z-index: 2147483645; */
+    z-index: 9999;
     opacity: 0.8;
     cursor: pointer;
     padding: 15px;
